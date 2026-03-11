@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puffer-Festung – Glasbruch links/rechts</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0a3342, #19556b);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 15px;
+        }
+        .game-box {
+            max-width: 1400px;
+            width: 100%;
+            background: #d9edf7;
+            border-radius: 70px;
+            padding: 25px;
+            border: 6px solid #b7def5;
+            box-shadow: 0 25px 35px rgba(0,20,30,0.8);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.8rem;
+            color: #003545;
+            text-shadow: 0 3px 5px #bbecff;
+            margin: 0 0 10px;
+        }
+        .subhead {
+            text-align: center;
+            background: #9ac9df;
+            padding: 8px 30px;
+            border-radius: 60px;
+            display: inline-block;
+            margin: 0 auto 20px;
+            font-weight: 700;
+            font-size: 1.4rem;
+            border: 3px solid white;
+        }
+        .flex-main {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        .left-col {
+            flex: 2;
+            min-width: 550px;
+        }
+        .right-col {
+            flex: 1;
+            min-width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .stoff-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #b3dcee;
+            padding: 20px;
+            border-radius: 60px;
+            border: 4px solid #1783ad;
+            box-shadow: inset 0 0 0 3px white, 0 10px 0 #266d86;
+            margin-bottom: 20px;
+        }
+        .karte {
+            flex: 0 1 140px;
+            background: #fffae5;
+            border-radius: 40px 40px 20px 20px;
+            padding: 14px 4px;
+            text-align: center;
+            cursor: pointer;
+            border: 4px solid transparent;
+            box-shadow: 0 7px 0 #3a6072;
+            transition: 0.07s;
+            font-weight: 700;
+            border-bottom: 7px solid #aac7d9;
+        }
+        .karte.sauer { background: #ffd8b8; border-left: 5px solid #b6490c; border-right: 5px solid #b6490c; }
+        .karte.base { background: #c7edc7; border-left: 5px solid #0f7842; border-right: 5px solid #0f7842; }
+        .karte.salz { background: #faf0c0; border-left: 5px solid #b08f2d; border-right: 5px solid #b08f2d; }
+        .karte.ausgewaehlt {
+            transform: scale(1.02);
+            border: 4px solid #ffbb2e;
+            box-shadow: 0 0 0 4px #ffe482, 0 7px 0 #2d5e74;
+        }
+        .formel { font-size: 1.25rem; font-weight: 800; }
+        .beschr { font-size: 0.7rem; opacity: 0.9; }
+
+        .auswahl-leiste {
+            background: #62a9c7;
+            border-radius: 50px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border: 4px solid white;
+            margin-bottom: 20px;
+        }
+        .auswahl-feld {
+            background: #0d495f;
+            color: #ffffcf;
+            border-radius: 50px;
+            padding: 10px 20px;
+            min-width: 200px;
+            text-align: center;
+            border: 3px solid #ffd966;
+        }
+        .anim-area {
+            background: #175367;
+            border-radius: 70px;
+            padding: 30px 20px;
+            border: 6px solid #9ee0ff;
+            box-shadow: inset 0 0 20px #a7e2ff, 0 15px 0 #0d3846;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .puffer-behälter {
+            background: #d4effa;
+            border-radius: 40px;
+            padding: 25px 40px;
+            font-size: 2.3rem;
+            font-weight: 800;
+            border: 6px solid #f2ffb0;
+            box-shadow: 0 0 0 6px #3f8ca8, 0 15px 0 #17505f;
+            z-index: 10;
+            position: relative;
+            transition: 0.3s;
+            text-align: center;
+        }
+        .angreifer {
+            position: absolute;
+            font-size: 3.5rem;
+            filter: drop-shadow(0 10px 5px #00000066);
+            transition: left 0.7s, right 0.7s, opacity 0.5s;
+            z-index: 20;
+        }
+        .saeure-links {
+            left: 5%;
+            top: 30%;
+        }
+        .base-rechts {
+            right: 5%;
+            top: 30%;
+        }
+        .angreifer.verschwunden {
+            opacity: 0;
+        }
+        .glassplitter {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 25;
+            pointer-events: none;
+        }
+        .splitter-links {
+            left: 15%;
+            top: 40%;
+            transform: rotate(-20deg);
+        }
+        .splitter-rechts {
+            right: 15%;
+            top: 40%;
+            transform: rotate(20deg);
+        }
+        .splitter-aktiv {
+            opacity: 1 !important;
+            animation: splitterKlimper 0.4s ease-out;
+        }
+        @keyframes splitterKlimper {
+            0% { transform: scale(0.8) rotate(-10deg); opacity: 1; }
+            50% { transform: scale(1.3) rotate(15deg); opacity: 0.9; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .puffer-status {
+            background: #0d3e4f;
+            padding: 15px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.4rem;
+            text-align: center;
+            margin-top: 15px;
+            border: 3px solid #ffd966;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .action-btn {
+            background: #fed759;
+            border: none;
+            padding: 18px 30px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            border-radius: 60px;
+            box-shadow: 0 8px 0 #9e771f, 0 8px 15px black;
+            cursor: pointer;
+            border: 3px solid #fff2c9;
+        }
+        .action-btn.reset {
+            background: #c1dbea;
+            box-shadow: 0 8px 0 #4f778b;
+        }
+        .action-btn:active { transform: translateY(5px); box-shadow: 0 3px 0 #7b621f; }
+        .action-btn:disabled { opacity: 0.5; pointer-events: none; transform: translateY(5px); }
+        .feedback-box {
+            background: #194d5f;
+            border-radius: 40px;
+            padding: 18px;
+            color: #f7ffd3;
+            font-size: 1.3rem;
+            border: 4px solid #90d6f5;
+        }
+        .reaktion-box {
+            background: #104452;
+            border-radius: 30px;
+            padding: 15px;
+            color: #fbffcf;
+            font-family: monospace;
+            font-size: 1.1rem;
+            border: 3px solid #bde9ff;
+        }
+        hr { border: 2px solid #2086a8; }
+    </style>
+</head>
+<body>
+<div class="game-box">
+    <h1>🧪 PUFFER-FESTUNG MIT GLASBRUCH 🧪</h1>
+    <div style="text-align: center;"><span class="subhead">links H₃O⁺ (Säure) – rechts OH⁻ (Base)</span></div>
+
+    <div class="flex-main">
+        <div class="left-col">
+            <!-- Wichtige Stoffe (16 Karten) -->
+            <div class="stoff-grid">
+                <!-- Essigsäure / Acetat -->
+                <div class="karte sauer" data-role="acid" data-name="Essigsäure" data-formel="CH₃COOH" data-comp="essigsaeure" data-basecomp="acetat" data-paarname="essig"><span class="formel">CH₃COOH</span><br><span class="beschr">Essigsäure</span></div>
+                <div class="karte base" data-role="base" data-name="Natriumacetat" data-formel="CH₃COONa" data-comp="acetat" data-acidcomp="essigsaeure" data-paarname="essig"><span class="formel">CH₃COONa</span><br><span class="beschr">Acetat</span></div>
+                <!-- Milchsäure / Lactat -->
+                <div class="karte sauer" data-role="acid" data-name="Milchsäure" data-formel="HC₃H₅O₃" data-comp="milchsaeure" data-basecomp="lactat" data-paarname="milch"><span class="formel">HC₃H₅O₃</span><br><span class="beschr">Milchsäure</span></div>
+                <div class="karte base" data-role="base" data-name="Natriumlactat" data-formel="NaC₃H₅O₃" data-comp="lactat" data-acidcomp="milchsaeure" data-paarname="milch"><span class="formel">NaC₃H₅O₃</span><br><span class="beschr">Lactat</span></div>
+                <!-- HCl / NaCl -->
+                <div class="karte sauer" data-role="acid" data-name="Salzsäure" data-formel="HCl" data-comp="hcl" data-stark="true"><span class="formel">HCl</span><br><span class="beschr">Salzsäure</span></div>
+                <div class="karte salz" data-role="neutral" data-name="Natriumchlorid" data-formel="NaCl" data-comp="nacl"><span class="formel">NaCl</span><br><span class="beschr">Kochsalz</span></div>
+                <!-- KOH / KCl (KOH stark, KCl neutral) -->
+                <div class="karte base" data-role="base" data-name="Kaliumhydroxid" data-formel="KOH" data-comp="koh" data-stark="true"><span class="formel">KOH</span><br><span class="beschr">Kalilauge</span></div>
+                <div class="karte salz" data-role="neutral" data-name="Kaliumchlorid" data-formel="KCl" data-comp="kcl"><span class="formel">KCl</span><br><span class="beschr">Kaliumchlorid</span></div>
+                <!-- Ammoniak / Ammoniumchlorid -->
+                <div class="karte base" data-role="base" data-name="Ammoniak" data-formel="NH₃" data-comp="ammoniak" data-acidcomp="ammonium" data-paarname="ammon"><span class="formel">NH₃</span><br><span class="beschr">Ammoniak</span></div>
+                <div class="karte sauer" data-role="acid" data-name="Ammoniumchlorid" data-formel="NH₄Cl" data-comp="ammonium" data-basecomp="ammoniak" data-paarname="ammon"><span class="formel">NH₄Cl</span><br><span class="beschr">Ammonium</span></div>
+                <!-- Citronensäure / Citrat -->
+                <div class="karte sauer" data-role="acid" data-name="Citronensäure" data-formel="C₆H₈O₇" data-comp="citronensäure" data-basecomp="citrat" data-paarname="citrat"><span class="formel">C₆H₈O₇</span><br><span class="beschr">Citronensäure</span></div>
+                <div class="karte base" data-role="base" data-name="Natriumcitrat" data-formel="Na₃Citrat" data-comp="citrat" data-acidcomp="citronensäure" data-paarname="citrat"><span class="formel">Na₃Citrat</span><br><span class="beschr">Citrat</span></div>
+                <!-- Benzoesäure / Benzoat -->
+                <div class="karte sauer" data-role="acid" data-name="Benzoesäure" data-formel="C₆H₅COOH" data-comp="benzoesäure" data-basecomp="benzoat" data-paarname="benzoe"><span class="formel">C₆H₅COOH</span><br><span class="beschr">Benzoesäure</span></div>
+                <div class="karte base" data-role="base" data-name="Natriumbenzoat" data-formel="C₆H₅COONa" data-comp="benzoat" data-acidcomp="benzoesäure" data-paarname="benzoe"><span class="formel">C₆H₅COONa</span><br><span class="beschr">Benzoat</span></div>
+                <!-- Sorbinsäure / Sorbat -->
+                <div class="karte sauer" data-role="acid" data-name="Sorbinsäure" data-formel="C₆H₈O₂" data-comp="sorbinsäure" data-basecomp="sorbat" data-paarname="sorbin"><span class="formel">C₆H₈O₂</span><br><span class="beschr">Sorbinsäure</span></div>
+                <div class="karte base" data-role="base" data-name="Natriumsorbat" data-formel="C₆H₇O₂Na" data-comp="sorbat" data-acidcomp="sorbinsäure" data-paarname="sorbin"><span class="formel">C₆H₇O₂Na</span><br><span class="beschr">Sorbat</span></div>
+            </div>
+
+            <div class="auswahl-leiste">
+                <span class="auswahl-feld" id="auswahl1">— erste Komponente —</span>
+                <span style="font-size: 3rem;">+</span>
+                <span class="auswahl-feld" id="auswahl2">— zweite Komponente —</span>
+            </div>
+
+            <!-- Animationsbereich mit Glasbruch -->
+            <div class="anim-area" id="animArea">
+                <div class="angreifer saeure-links" id="saeureFig">💧 H₃O⁺</div>
+                <div class="angreifer base-rechts" id="baseFig">🧴 OH⁻</div>
+                <div class="glassplitter splitter-links" id="splitterLinks">💥🔮</div>
+                <div class="glassplitter splitter-rechts" id="splitterRechts">🔮💥</div>
+                <div class="puffer-behälter" id="pufferKern">⚗️ PUFFER<br><span style="font-size:1.2rem;" id="pufferFormel">(leer)</span></div>
+            </div>
+            <div class="puffer-status" id="statusText">🛡️ Wähle zwei Stoffe und teste.</div>
+        </div>
+
+        <div class="right-col">
+            <div class="btn-group">
+                <button class="action-btn" id="testBtn" disabled>🔥 TESTEN</button>
+                <button class="action-btn reset" id="resetBtn">↻ Reset</button>
+            </div>
+            <div class="feedback-box" id="feedbackMsg"></div>
+            <div class="reaktion-box" id="reaktH3O">💧 H₃O⁺-Angriff:</div>
+            <div class="reaktion-box" id="reaktOH">🫧 OH⁻-Angriff:</div>
+        </div>
+    </div>
+    <hr>
+    <div style="font-size:1.1rem; color:#00384a;">💡 KOH + KCl schützt vor H₃O⁺ (links), aber Glas rechts (OH⁻) bricht. HCl+NaCl schützt vor OH⁻ (rechts), links bricht. Echte Puffer halten beide Seiten.</div>
+</div>
+
+<script>
+    (function() {
+        const karten = document.querySelectorAll('.karte');
+        let auswahl = [];
+
+        const aus1 = document.getElementById('auswahl1');
+        const aus2 = document.getElementById('auswahl2');
+        const testBtn = document.getElementById('testBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const feedback = document.getElementById('feedbackMsg');
+        const reaktH3O = document.getElementById('reaktH3O');
+        const reaktOH = document.getElementById('reaktOH');
+        const pufferKern = document.getElementById('pufferKern');
+        const pufferFormel = document.getElementById('pufferFormel');
+        const statusText = document.getElementById('statusText');
+        const saeureFig = document.getElementById('saeureFig');
+        const baseFig = document.getElementById('baseFig');
+        const splitterLinks = document.getElementById('splitterLinks');
+        const splitterRechts = document.getElementById('splitterRechts');
+
+        function updateAuswahlAnzeige() {
+            if (auswahl.length === 0) {
+                aus1.innerText = '— erste Komponente —';
+                aus2.innerText = '— zweite Komponente —';
+                pufferFormel.innerText = '(leer)';
+            } else if (auswahl.length === 1) {
+                aus1.innerText = `${auswahl[0].name} (${auswahl[0].formel})`;
+                aus2.innerText = '— zweite wählen —';
+                pufferFormel.innerText = auswahl[0].formel + ' + ?';
+            } else {
+                aus1.innerText = `${auswahl[0].name} (${auswahl[0].formel})`;
+                aus2.innerText = `${auswahl[1].name} (${auswahl[1].formel})`;
+                pufferFormel.innerText = auswahl[0].formel + ' + ' + auswahl[1].formel;
+            }
+            testBtn.disabled = (auswahl.length !== 2);
+        }
+
+        function toggleKarte(karte) {
+            const index = auswahl.findIndex(item => item.element === karte);
+            if (index !== -1) {
+                auswahl.splice(index, 1);
+                karte.classList.remove('ausgewaehlt');
+            } else {
+                if (auswahl.length >= 2) {
+                    const entfernt = auswahl.shift();
+                    entfernt.element.classList.remove('ausgewaehlt');
+                }
+                auswahl.push({
+                    element: karte,
+                    role: karte.dataset.role,
+                    name: karte.dataset.name,
+                    formel: karte.dataset.formel,
+                    comp: karte.dataset.comp,
+                    acidcomp: karte.dataset.acidcomp,
+                    basecomp: karte.dataset.basecomp,
+                    paarname: karte.dataset.paarname,
+                    stark: karte.dataset.stark === 'true'
+                });
+                karte.classList.add('ausgewaehlt');
+            }
+            updateAuswahlAnzeige();
+        }
+
+        karten.forEach(k => k.addEventListener('click', () => toggleKarte(k)));
+
+        function resetAnimation() {
+            saeureFig.classList.remove('verschwunden');
+            baseFig.classList.remove('verschwunden');
+            splitterLinks.classList.remove('splitter-aktiv');
+            splitterRechts.classList.remove('splitter-aktiv');
+            saeureFig.style.left = '5%';
+            baseFig.style.right = '5%';
+            pufferKern.style.backgroundColor = '#d4effa';
+            pufferKern.style.borderColor = '#f2ffb0';
+            statusText.innerText = '🛡️ Wähle zwei Stoffe und teste.';
+        }
+
+        resetBtn.addEventListener('click', () => {
+            auswahl = [];
+            karten.forEach(k => k.classList.remove('ausgewaehlt'));
+            updateAuswahlAnzeige();
+            feedback.innerHTML = '';
+            reaktH3O.innerHTML = '💧 H₃O⁺-Angriff:';
+            reaktOH.innerHTML = '🫧 OH⁻-Angriff:';
+            resetAnimation();
+        });
+
+        testBtn.addEventListener('click', () => {
+            if (auswahl.length !== 2) return;
+            resetAnimation();
+
+            const a = auswahl[0];
+            const b = auswahl[1];
+
+            // Puffererkennung: korrespondierendes Paar?
+            let istPuffer = false;
+            let pufferArt = '';
+            if (a.role === 'acid' && b.role === 'base' && a.basecomp === b.comp) {
+                istPuffer = true;
+                pufferArt = a.paarname;
+            } else if (a.role === 'base' && b.role === 'acid' && a.acidcomp === b.comp) {
+                istPuffer = true;
+                pufferArt = b.paarname;
+            }
+
+            // Spezialfälle
+            const istHclKcl = (a.comp === 'hcl' && b.comp === 'nacl') || (a.comp === 'nacl' && b.comp === 'hcl');
+            const istKohKcl = (a.comp === 'koh' && b.comp === 'kcl') || (a.comp === 'kcl' && b.comp === 'koh');
+            const istMilchAcetat = (a.comp === 'milchsaeure' && b.comp === 'acetat') || (a.comp === 'acetat' && b.comp === 'milchsaeure');
+
+            // Animation starten
+            saeureFig.style.transition = 'left 0.7s, opacity 0.5s';
+            baseFig.style.transition = 'right 0.7s, opacity 0.5s';
+            splitterLinks.classList.remove('splitter-aktiv');
+            splitterRechts.classList.remove('splitter-aktiv');
+
+            setTimeout(() => {
+                // Angreifer rücken vor
+                saeureFig.style.left = '35%';
+                baseFig.style.right = '35%';
+            }, 200);
+
+            setTimeout(() => {
+                if (istPuffer) {
+                    // Echter Puffer: beide Angreifer verschwinden, kein Glasbruch
+                    saeureFig.classList.add('verschwunden');
+                    baseFig.classList.add('verschwunden');
+                    pufferKern.style.backgroundColor = '#c6f0c6';
+                    pufferKern.style.borderColor = '#8ae68a';
+                    statusText.innerText = '✅ PUFFER HÄLT! Beide Seiten geschützt.';
+                    feedback.innerHTML = 'Korrespondierendes Paar – perfekter Puffer.';
+                    // Reaktionstexte
+                    if (pufferArt === 'essig') {
+                        reaktH3O.innerHTML = '💧 H₃O⁺-Angriff: CH₃COO⁻ + H₃O⁺ → CH₃COOH + H₂O';
+                        reaktOH.innerHTML = '🫧 OH⁻-Angriff: CH₃COOH + OH⁻ → CH₃COO⁻ + H₂O';
+                    } else if (pufferArt === 'milch') {
+                        reaktH3O.innerHTML = '💧 H₃O⁺-Angriff: C₃H₅O₃⁻ + H₃O⁺ → HC₃H₅O₃ + H₂O';
+                        reaktOH.innerHTML = '🫧 OH⁻-Angriff: HC₃H₅O₃ + OH⁻ → C₃H₅O₃⁻ + H₂O';
+                    } else if (pufferArt === 'ammon') {
+                        reaktH3O.innerHTML = '💧 H₃O⁺-Angriff: NH₃ + H₃O⁺ → NH₄⁺ + H₂O';
+                        reaktOH.innerHTML = '🫧 OH⁻-Angriff: NH₄⁺ + OH⁻ → NH₃ + H₂O';
+                    } else {
+                        reaktH3O.innerHTML = '💧 H₃O⁺-Angriff wird abgefangen.';
+                        reaktOH.innerHTML = '🫧 OH⁻-Angriff wird abgefangen.';
+                    }
+                }
+                else if (istHclKcl) {
+                    // HCl + NaCl: schützt vor OH⁻ (rechts), links bricht
+                    saeureFig.classList.add('verschwunden'); // links verschwindet? NEIN: wir wollen links Glasbruch, also lassen wir H₃O⁰ sichtbar? Wir wollen links Glasbruch zeigen: also H₃O⁺ bleibt sichtbar, Glas splittert.
+                    // OH⁻ (rechts) wird abgefangen (verschwindet)
+                    baseFig.classList.add('verschwunden');
+                    splitterLinks.classList.add('splitter-aktiv');
+                    pufferKern.style.backgroundColor = '#f7baba';
+                    pufferKern.style.borderColor = '#ff5e5e';
+                    statusText.innerText = '⚠️ HCl+NaCl: Nur OH⁻ (rechts) abgewehrt – linke Seite (H₃O⁺) zerspringt!';
+                    feedback.innerHTML = 'HCl + NaCl: Kein Puffer, Glas links bricht.';
+                    reaktH3O.innerHTML = '💧 H₃O⁺-Angriff: Keine Base zum Abfangen → GLASBRUCH LINKS.';
+                    reaktOH.innerHTML = '🫧 OH⁻-Angriff: HCl + OH⁻ → H₂O + Cl⁻ (Schutz rechts).';
+                }
+                else if (istKohKcl) {
+                    // KOH + KCl: schützt vor H₃O⁺ (links), rechts (OH⁻) bricht
+                    saeureFig.classList.add('verschwunden'); // H₃O⁺ wird neutralisiert
+                    // OH⁻ bleibt? Wir lassen OH⁻ sichtbar und Glas rechts splittert.
+                    splitterRechts.classList.add('splitter-aktiv');
+                    pufferKern.style.backgroundColor = '#f7baba';
+                    pufferKern.style.borderColor = '#ff5e5e';
+                    statusText.innerText = '⚠️ KOH+KCl: Nur H₃O⁺ (links) abgewehrt – rechte Seite (OH⁻) zerspringt!';
+                    feedback.innerHTML = 'KOH + KCl: Kein Puffer, Glas rechts bricht.';
+                    reaktH3O.innerHTML = '💧 H₃O⁺-Angriff: OH⁻ aus KOH neutralisiert (Schutz links).';
+                    reaktOH.innerHTML = '🫧 OH⁻-Angriff: Keine Säure zum Abfangen → GLASBRUCH RECHTS.';
+                }
+                else if (istMilchAcetat) {
+                    // Falsches Paar: beide Seiten kurzzeitig, dann Glasbruch an beiden?
+                    // wir lassen beide Angreifer verschwinden, aber beide Splitter erscheinen
+                    saeureFig.classList.add('verschwunden');
+                    baseFig.classList.add('verschwunden');
+                    splitterLinks.classList.add('splitter-aktiv');
+                    splitterRechts.classList.add('splitter-aktiv');
+                    pufferKern.style.backgroundColor = '#f7e4b4';
+                    pufferKern.style.borderColor = '#ffae42';
+                    statusText.innerText = '⏳ Milchsäure+Acetat: kurzer Widerstand, dann GLAS BRICHT BEIDSEITIG!';
+                    feedback.innerHTML = '❌ Falsches Paar – keine echte Pufferwirkung.';
+                    reaktH3O.innerHTML = '💧 H₃O⁺-Angriff: Anfangs Abfang, dann versagt → GLASBRUCH LINKS.';
+                    reaktOH.innerHTML = '🫧 OH⁻-Angriff: Anfangs Abfang, dann versagt → GLASBRUCH RECHTS.';
+                }
+                else {
+                    // Alles andere (z.B. HCl + KOH, Essigsäure+NaCl etc.) -> beide Seiten brechen
+                    saeureFig.classList.add('verschwunden');
+                    baseFig.classList.add('verschwunden');
+                    splitterLinks.classList.add('splitter-aktiv');
+                    splitterRechts.classList.add('splitter-aktiv');
+                    pufferKern.style.backgroundColor = '#f7baba';
+                    pufferKern.style.borderColor = '#ff5e5e';
+                    statusText.innerText = '💥 KEIN PUFFER – BEIDE GLÄSER ZERBROCHEN!';
+                    feedback.innerHTML = 'Diese Kombination puffert gar nicht.';
+                    reaktH3O.innerHTML = '💧 H₃O⁺-Angriff: Kein Schutz – GLAS LINKS KAPUTT.';
+                    reaktOH.innerHTML = '🫧 OH⁻-Angriff: Kein Schutz – GLAS RECHTS KAPUTT.';
+                }
+            }, 1000);
+        });
+
+        updateAuswahlAnzeige();
+    })();
+</script>
+</body>
+</html>
