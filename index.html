@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Puffer-Box – Kugeln prallen & Wände brechen</title>
+    <title>Puffer-Festung – Kugeln mit H₃O⁺/OH⁻</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,7 +12,7 @@
             padding: 0;
         }
         body {
-            background: linear-gradient(145deg, #0c3d4f, #1d637d);
+            background: linear-gradient(145deg, #0b3849, #1b607a);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -107,73 +107,99 @@
             border: 2px solid #fecb4f;
             font-size: 0.9rem;
         }
-        /* Animation Area */
+        /* Animation Area - größer für längere Box */
         .anim-bühne {
             background: #154f63;
             border-radius: 60px;
-            padding: 25px 10px 20px;
+            padding: 30px 10px 30px;
             border: 5px solid #a6e3ff;
             box-shadow: inset 0 0 20px #afe5ff, 0 10px 0 #0a3643;
             margin-bottom: 12px;
             position: relative;
-            min-height: 280px;
+            min-height: 380px;
         }
+        /* Puffer-Box - größer (länger nach unten) */
         .puffer-box {
             background: #d7f0fa;
             border: 6px solid #f9ffb0;
             border-radius: 35px;
-            padding: 18px 10px;
-            width: 200px;
+            padding: 25px 15px;
+            width: 240px;
+            min-height: 200px;
             margin: 0 auto;
             text-align: center;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             box-shadow: 0 0 0 4px #2b849f, 0 8px 0 #0b4b5c;
             position: relative;
             z-index: 20;
             transition: border 0.2s, background 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        .box-wand {
+        /* Wände als separate Elemente */
+        .wand {
             position: absolute;
-            top: 0;
-            width: 12px;
-            height: 100%;
+            width: 16px;
+            height: 220px;
             background: #c9ecff;
-            border: 3px solid #76c3e0;
-            border-radius: 10px;
+            border: 4px solid #3da0c0;
+            border-radius: 15px;
             z-index: 25;
             transition: 0.2s;
+            top: 50%;
+            transform: translateY(-50%);
         }
         .wand-links {
-            left: -2px;
-            border-right: none;
+            left: calc(50% - 130px);
+            background: linear-gradient(90deg, #b3e0f0, #d4f0ff);
         }
         .wand-rechts {
-            right: -2px;
-            border-left: none;
+            right: calc(50% - 130px);
+            background: linear-gradient(90deg, #d4f0ff, #b3e0f0);
         }
         .wand-zerbrochen {
             background: #a03a3a;
             border-color: #ff5555;
-            opacity: 0.7;
-            transform: scaleX(0.5);
-            box-shadow: 0 0 15px red;
+            box-shadow: 0 0 20px red;
+            opacity: 0.9;
+            transform: translateY(-50%) scaleX(0.6);
         }
         .kugel-container {
             position: relative;
             width: 100%;
-            height: 180px;
-            margin-top: -30px;
+            height: 320px;
+            margin-top: -260px;
+            z-index: 15;
         }
         .kugel {
             position: absolute;
-            font-size: 2rem;
-            filter: drop-shadow(0 5px 5px #00000050);
-            transition: left 0.03s linear;
+            font-size: 2.2rem;
+            filter: drop-shadow(0 8px 5px #00000060);
+            transition: left 0.03s linear, right 0.03s linear;
             z-index: 15;
+            will-change: left, right;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
         }
-        .kugel.h3o { color: #ff6f6f; }
-        .kugel.oh { color: #5fb5ff; }
+        .kugel.h3o { 
+            color: #ff8888;
+            background: rgba(200, 40, 40, 0.3);
+            text-shadow: 0 0 10px #ff5555;
+            box-shadow: 0 0 15px #ff8888;
+        }
+        .kugel.oh { 
+            color: #8888ff;
+            background: rgba(40, 40, 200, 0.3);
+            text-shadow: 0 0 10px #5555ff;
+            box-shadow: 0 0 15px #8888ff;
+        }
         .status-text {
             background: #063a49;
             color: white;
@@ -233,8 +259,8 @@
 </head>
 <body>
 <div class="container">
-    <h1>🧪 PUFFER‑BOX ⚗️</h1>
-    <div style="text-align: center;"><span class="sub">Links H₃O⁺ Kugeln – Rechts OH⁻ Kugeln</span></div>
+    <h1>⚡ PUFFER-FESTUNG ⚡</h1>
+    <div style="text-align: center;"><span class="sub">🔴 H₃O⁺ Kugeln – 🔵 OH⁻ Kugeln</span></div>
 
     <!-- Stoffraster (12 wichtige) -->
     <div class="stoff-grid">
@@ -265,18 +291,18 @@
         <span class="auswahl-feld" id="auswahl2">— zweite —</span>
     </div>
 
-    <!-- Animationsbereich: Box mit Wänden und Kugeln -->
+    <!-- Animationsbereich: Box mit separaten Wänden und Kugeln -->
     <div class="anim-bühne" id="animBühne">
-        <div style="position: relative; width: fit-content; margin: 0 auto;">
-            <div class="puffer-box" id="pufferBox">
-                <span id="pufferInhalt">⚗️ PUFFER</span><br>
-                <span style="font-size:0.9rem;" id="pufferFormel">(leer)</span>
-                <!-- Wände als separate Elemente (innerhalb der Box positioniert) -->
-                <div class="box-wand wand-links" id="wandLinks"></div>
-                <div class="box-wand wand-rechts" id="wandRechts"></div>
-            </div>
+        <!-- Puffer-Box (nur der Körper, ohne Wände) -->
+        <div class="puffer-box" id="pufferBox">
+            <span id="pufferInhalt">⚗️ PUFFER</span><br>
+            <span style="font-size:0.9rem;" id="pufferFormel">(leer)</span>
         </div>
-        <!-- Kugeln werden per JS dynamisch erstellt und bewegt -->
+        <!-- Separate Wände (links und rechts von der Box) – initial nicht zerbrochen -->
+        <div class="wand wand-links" id="wandLinks"></div>
+        <div class="wand wand-rechts" id="wandRechts"></div>
+        
+        <!-- Kugel-Container -->
         <div class="kugel-container" id="kugelContainer"></div>
     </div>
 
@@ -288,10 +314,10 @@
     </div>
 
     <div class="feedback" id="feedbackMsg"></div>
-    <div class="reaktion-klein" id="reaktH3O">💧 H₃O⁺:</div>
-    <div class="reaktion-klein" id="reaktOH">🫧 OH⁻:</div>
+    <div class="reaktion-klein" id="reaktH3O">🔴 H₃O⁺:</div>
+    <div class="reaktion-klein" id="reaktOH">🔵 OH⁻:</div>
     <hr>
-    <div style="font-size:0.85rem; text-align:center; color:#004054;">💡 Echte Puffer halten beide Wände. HCl+NaCl: rechte Wand hält (OH⁻), linke bricht. KOH+KCl: linke Wand hält (H₃O⁺), rechte bricht.</div>
+    <div style="font-size:0.85rem; text-align:center; color:#004054;">💡 Wände werden erst rot, wenn Kugeln sie treffen. NH₃ + NH₄Cl ist ein Puffer (schützt beide Seiten).</div>
 </div>
 
 <script>
@@ -312,9 +338,16 @@
         const statusText = document.getElementById('statusText');
         const wandLinks = document.getElementById('wandLinks');
         const wandRechts = document.getElementById('wandRechts');
+        const pufferBox = document.getElementById('pufferBox');
         const kugelContainer = document.getElementById('kugelContainer');
+        const animBühne = document.getElementById('animBühne');
 
         let animationInterval = null;
+        let kugeln = [];
+        let wandLinksIntakt = true;
+        let wandRechtsIntakt = true;
+        let wandLinksSollBruch = false;
+        let wandRechtsSollBruch = false;
 
         function resetWändeUndKugeln() {
             wandLinks.classList.remove('wand-zerbrochen');
@@ -325,6 +358,9 @@
             // Kugeln entfernen
             kugelContainer.innerHTML = '';
             if (animationInterval) clearInterval(animationInterval);
+            kugeln = [];
+            wandLinksIntakt = true;
+            wandRechtsIntakt = true;
         }
 
         function updateAuswahl() {
@@ -377,97 +413,157 @@
             karten.forEach(k => k.classList.remove('ausgewaehlt'));
             updateAuswahl();
             feedback.innerHTML = '';
-            reaktH3O.innerHTML = '💧 H₃O⁺:';
-            reaktOH.innerHTML = '🫧 OH⁻:';
+            reaktH3O.innerHTML = '🔴 H₃O⁺:';
+            reaktOH.innerHTML = '🔵 OH⁻:';
             resetWändeUndKugeln();
         });
 
-        function starteKugeln(schutzLinks, schutzRechts) {
-            // Kugeln erstellen
+        function erstelleKugeln() {
             kugelContainer.innerHTML = '';
-            const kugeln = [];
-            for (let i = 0; i < 4; i++) {
-                // linke Kugeln (H3O)
+            kugeln = [];
+            
+            // Linke Kugeln (H3O+) - 5 Stück mit H₃O⁺ Beschriftung
+            for (let i = 0; i < 5; i++) {
                 let kugel = document.createElement('div');
                 kugel.className = 'kugel h3o';
-                kugel.textContent = '💧';
-                kugel.style.left = '5%';
-                kugel.style.top = (30 + i * 25) + '%';
+                kugel.textContent = 'H₃O⁺';  // Chemische Formel
+                kugel.style.left = '2%';
+                kugel.style.top = (10 + i * 16) + '%';
                 kugel.dataset.seite = 'links';
-                kugel.dataset.pos = 5;
-                kugelContainer.appendChild(kugel);
-                kugeln.push(kugel);
-
-                // rechte Kugeln (OH)
-                kugel = document.createElement('div');
-                kugel.className = 'kugel oh';
-                kugel.textContent = '💧';
-                kugel.style.right = '5%';
-                kugel.style.top = (30 + i * 25) + '%';
-                kugel.dataset.seite = 'rechts';
-                kugel.dataset.pos = 5;
+                kugel.dataset.pos = 2;
+                kugel.dataset.speed = 0.5 + Math.random() * 0.3;
+                kugel.dataset.hatGetroffen = 'false';
                 kugelContainer.appendChild(kugel);
                 kugeln.push(kugel);
             }
+            
+            // Rechte Kugeln (OH-) - 5 Stück mit OH⁻ Beschriftung
+            for (let i = 0; i < 5; i++) {
+                let kugel = document.createElement('div');
+                kugel.className = 'kugel oh';
+                kugel.textContent = 'OH⁻';  // Chemische Formel
+                kugel.style.right = '2%';
+                kugel.style.top = (10 + i * 16) + '%';
+                kugel.dataset.seite = 'rechts';
+                kugel.dataset.pos = 2;
+                kugel.dataset.speed = 0.5 + Math.random() * 0.3;
+                kugel.dataset.hatGetroffen = 'false';
+                kugelContainer.appendChild(kugel);
+                kugeln.push(kugel);
+            }
+        }
 
-            // Box-Position ermitteln (Mitte)
-            const boxRect = pufferBox.getBoundingClientRect();
+        function starteAnimation(schutzLinks, schutzRechts) {
+            erstelleKugeln();
+            
+            // Speichere, ob Wände brechen sollen (kein Schutz)
+            wandLinksSollBruch = !schutzLinks;
+            wandRechtsSollBruch = !schutzRechts;
+            
+            // Wände initial noch nicht zerbrochen (Schüler warten)
+            wandLinks.classList.remove('wand-zerbrochen');
+            wandRechts.classList.remove('wand-zerbrochen');
+            
+            // Wand-Positionen ermitteln (für Kollision)
+            const wandLinksRect = wandLinks.getBoundingClientRect();
+            const wandRechtsRect = wandRechts.getBoundingClientRect();
             const containerRect = animBühne.getBoundingClientRect();
-            const boxLinksOffset = boxRect.left - containerRect.left;
-            const boxRechtsOffset = containerRect.right - boxRect.right;
-
-            let wandLinksIntakt = schutzLinks;
-            let wandRechtsIntakt = schutzRechts;
-
-            // Animationsintervall
-            let frames = 0;
+            
+            // Relative Positionen in Prozent
+            const wandLinksPos = ((wandLinksRect.left - containerRect.left) / containerRect.width) * 100;
+            const wandRechtsPos = 100 - ((containerRect.right - wandRechtsRect.right) / containerRect.width) * 100;
+            
+            let kugelnDieFliegen = [...kugeln];
+            
+            if (animationInterval) clearInterval(animationInterval);
+            
             animationInterval = setInterval(() => {
-                for (let kugel of kugeln) {
+                for (let i = kugelnDieFliegen.length - 1; i >= 0; i--) {
+                    const kugel = kugelnDieFliegen[i];
+                    if (!kugel.parentNode) {
+                        kugelnDieFliegen.splice(i, 1);
+                        continue;
+                    }
+                    
+                    const seite = kugel.dataset.seite;
                     let aktuellPos = parseFloat(kugel.dataset.pos);
-                    if (kugel.dataset.seite === 'links') {
-                        // bewegt sich nach rechts
-                        aktuellPos += 0.8;
+                    const speed = parseFloat(kugel.dataset.speed);
+                    const hatGetroffen = kugel.dataset.hatGetroffen === 'true';
+                    
+                    if (seite === 'links') {
+                        // Bewegt sich nach rechts
+                        aktuellPos += speed;
                         kugel.style.left = aktuellPos + '%';
-                        // Prüft ob es die Box erreicht
-                        if (aktuellPos > 38 && aktuellPos < 45) {
-                            if (!wandLinksIntakt) {
-                                // Wand zerbrochen: Kugel läuft einfach weiter
-                                // kein Stopp
+                        
+                        // Kollision mit linker Wand?
+                        if (!hatGetroffen && aktuellPos >= wandLinksPos - 3 && aktuellPos <= wandLinksPos + 8) {
+                            kugel.dataset.hatGetroffen = 'true';
+                            
+                            // Jetzt erst entscheidet sich, ob Wand bricht
+                            if (wandLinksSollBruch) {
+                                // Wand zerbrochen -> rot färben und Kugel fliegt weiter
+                                wandLinks.classList.add('wand-zerbrochen');
+                                kugel.style.opacity = '0.9';
+                                kugel.style.color = '#aaaaaa';
                             } else {
-                                // Wand intakt: Kugel bleibt an Position 42 "kleben"?
-                                // Wir lassen sie einfach verschwinden (simuliert Absorption)
-                                kugel.style.opacity = '0.3';
-                                // Aber wir wollen, dass sie nicht weiterläuft – wir setzen sie zurück? 
-                                // Besser: bei intakter Wand: Kugeln verschwinden (wurden abgefangen)
-                                kugel.style.transition = 'opacity 0.2s';
+                                // Wand intakt -> Kugel wird absorbiert (verschwindet)
+                                kugel.style.transition = 'opacity 0.3s';
                                 kugel.style.opacity = '0';
-                                // nach kurzer Zeit entfernen
-                                setTimeout(() => { if (kugel.parentNode) kugel.remove(); }, 200);
+                                setTimeout(() => {
+                                    if (kugel.parentNode) kugel.remove();
+                                }, 300);
+                                kugelnDieFliegen.splice(i, 1);
+                                continue;
                             }
                         }
-                        if (aktuellPos > 90) kugel.remove(); // falls durchgelaufen
+                        
+                        // Wenn zu weit rechts, entfernen
+                        if (aktuellPos > 100) {
+                            kugel.remove();
+                            kugelnDieFliegen.splice(i, 1);
+                        }
+                        
                         kugel.dataset.pos = aktuellPos;
                     } else {
-                        // rechts -> bewegt sich nach links
-                        let aktuellPosRechts = parseFloat(kugel.dataset.pos);
-                        aktuellPosRechts += 0.8;
-                        kugel.style.right = aktuellPosRechts + '%';
-                        if (aktuellPosRechts > 38 && aktuellPosRechts < 45) {
-                            if (!wandRechtsIntakt) {
-                                // nix, läuft durch
+                        // Rechts -> bewegt sich nach links
+                        aktuellPos += speed;
+                        kugel.style.right = aktuellPos + '%';
+                        
+                        // Kollision mit rechter Wand?
+                        if (!hatGetroffen && aktuellPos >= (100 - wandRechtsPos) - 3 && aktuellPos <= (100 - wandRechtsPos) + 8) {
+                            kugel.dataset.hatGetroffen = 'true';
+                            
+                            if (wandRechtsSollBruch) {
+                                // Wand zerbrochen
+                                wandRechts.classList.add('wand-zerbrochen');
+                                kugel.style.opacity = '0.9';
+                                kugel.style.color = '#aaaaaa';
                             } else {
-                                kugel.style.opacity = '0.3';
+                                // Wand intakt -> Kugel absorbiert
+                                kugel.style.transition = 'opacity 0.3s';
                                 kugel.style.opacity = '0';
-                                setTimeout(() => { if (kugel.parentNode) kugel.remove(); }, 200);
+                                setTimeout(() => {
+                                    if (kugel.parentNode) kugel.remove();
+                                }, 300);
+                                kugelnDieFliegen.splice(i, 1);
+                                continue;
                             }
                         }
-                        if (aktuellPosRechts > 90) kugel.remove();
-                        kugel.dataset.pos = aktuellPosRechts;
+                        
+                        if (aktuellPos > 100) {
+                            kugel.remove();
+                            kugelnDieFliegen.splice(i, 1);
+                        }
+                        
+                        kugel.dataset.pos = aktuellPos;
                     }
                 }
-                // Aufräumen, wenn keine Kugeln mehr
-                if (kugelContainer.children.length === 0) clearInterval(animationInterval);
-            }, 40);
+                
+                // Animation beenden wenn keine Kugeln mehr
+                if (kugelnDieFliegen.length === 0) {
+                    clearInterval(animationInterval);
+                }
+            }, 30);
         }
 
         testBtn.addEventListener('click', () => {
@@ -480,6 +576,8 @@
             // Puffererkennung: korrespondierendes Paar?
             let istPuffer = false;
             let pufferArt = '';
+            
+            // Paarerkennung: entweder Säure+Base mit passendem comp
             if (a.role === 'acid' && b.role === 'base' && a.basecomp === b.comp) {
                 istPuffer = true;
                 pufferArt = a.paarname;
@@ -487,6 +585,9 @@
                 istPuffer = true;
                 pufferArt = b.paarname;
             }
+            
+            // Spezialfall: Ammoniak + Ammonium (NH3 + NH4+) ist ein Puffer!
+            // Das wird bereits durch obige Logik erfasst, da NH3 (base) acidcomp = ammonium und NH4Cl (acid) basecomp = ammoniak
 
             const istHclKcl = (a.comp === 'hcl' && b.comp === 'nacl') || (a.comp === 'nacl' && b.comp === 'hcl');
             const istKohKcl = (a.comp === 'koh' && b.comp === 'kcl') || (a.comp === 'kcl' && b.comp === 'koh');
@@ -501,63 +602,65 @@
                 pufferBox.style.backgroundColor = '#b8f0b8';
                 pufferBox.style.borderColor = '#9bef6b';
                 statusText.innerText = '✅ PUFFER: Beide Wände halten – Kugeln werden absorbiert!';
+                
                 if (pufferArt === 'essig') {
-                    reaktH3O.innerHTML = '💧 H₃O⁺: CH₃COO⁻ + H₃O⁺ → CH₃COOH + H₂O';
-                    reaktOH.innerHTML = '🫧 OH⁻: CH₃COOH + OH⁻ → CH₃COO⁻ + H₂O';
+                    reaktH3O.innerHTML = '🔴 H₃O⁺: CH₃COO⁻ + H₃O⁺ → CH₃COOH + H₂O';
+                    reaktOH.innerHTML = '🔵 OH⁻: CH₃COOH + OH⁻ → CH₃COO⁻ + H₂O';
                 } else if (pufferArt === 'milch') {
-                    reaktH3O.innerHTML = '💧 H₃O⁺: C₃H₅O₃⁻ + H₃O⁺ → HC₃H₅O₃ + H₂O';
-                    reaktOH.innerHTML = '🫧 OH⁻: HC₃H₅O₃ + OH⁻ → C₃H₅O₃⁻ + H₂O';
+                    reaktH3O.innerHTML = '🔴 H₃O⁺: C₃H₅O₃⁻ + H₃O⁺ → HC₃H₅O₃ + H₂O';
+                    reaktOH.innerHTML = '🔵 OH⁻: HC₃H₅O₃ + OH⁻ → C₃H₅O₃⁻ + H₂O';
+                } else if (pufferArt === 'ammon') {
+                    reaktH3O.innerHTML = '🔴 H₃O⁺: NH₃ + H₃O⁺ → NH₄⁺ + H₂O';
+                    reaktOH.innerHTML = '🔵 OH⁻: NH₄⁺ + OH⁻ → NH₃ + H₂O';
+                } else if (pufferArt === 'citrat') {
+                    reaktH3O.innerHTML = '🔴 H₃O⁺: Citrat³⁻ + H₃O⁺ → HCit²⁻ + H₂O';
+                    reaktOH.innerHTML = '🔵 OH⁻: H₂Cit⁻ + OH⁻ → HCit²⁻ + H₂O';
                 } else {
-                    reaktH3O.innerHTML = '💧 H₃O⁺ wird von Base abgefangen';
-                    reaktOH.innerHTML = '🫧 OH⁻ wird von Säure abgefangen';
+                    reaktH3O.innerHTML = '🔴 H₃O⁺ wird von Base abgefangen';
+                    reaktOH.innerHTML = '🔵 OH⁻ wird von Säure abgefangen';
                 }
                 feedback.innerHTML = 'Korrespondierendes Paar – perfekter Puffer.';
             }
             else if (istHclKcl) {
                 schutzLinks = false;
                 schutzRechts = true;  // HCl schützt vor OH⁻
-                wandLinks.classList.add('wand-zerbrochen');
+                // Wand wird erst bei Kontakt rot
                 pufferBox.style.backgroundColor = '#f0b8b8';
-                statusText.innerText = '⚠️ HCl+NaCl: Rechte Wand hält (OH⁻), linke bricht – H₃O⁺ läuft durch!';
-                reaktH3O.innerHTML = '💧 H₃O⁺: KEINE Base – GLAS LINKS BRICHT, Kugeln laufen weiter.';
-                reaktOH.innerHTML = '🫧 OH⁻: HCl + OH⁻ → H₂O + Cl⁻ (Schutz rechts).';
+                statusText.innerText = '⚠️ HCl+NaCl: Rechte Wand hält (OH⁻), linke wird brechen – H₃O⁺ Kugeln durch!';
+                reaktH3O.innerHTML = '🔴 H₃O⁺: KEINE Base – LINKE WAND BRICHT BEIM KONTAKT.';
+                reaktOH.innerHTML = '🔵 OH⁻: HCl + OH⁻ → H₂O + Cl⁻ (Schutz rechts).';
                 feedback.innerHTML = 'HCl + NaCl schützt nur vor OH⁻ (rechts).';
             }
             else if (istKohKcl) {
                 schutzLinks = true;   // KOH schützt vor H₃O⁺
                 schutzRechts = false;
-                wandRechts.classList.add('wand-zerbrochen');
                 pufferBox.style.backgroundColor = '#f0b8b8';
-                statusText.innerText = '⚠️ KOH+KCl: Linke Wand hält (H₃O⁺), rechte bricht – OH⁻ läuft durch!';
-                reaktH3O.innerHTML = '💧 H₃O⁺: OH⁻ aus KOH neutralisiert (Schutz links).';
-                reaktOH.innerHTML = '🫧 OH⁻: KEINE Säure – GLAS RECHTS BRICHT, Kugeln laufen weiter.';
+                statusText.innerText = '⚠️ KOH+KCl: Linke Wand hält (H₃O⁺), rechte wird brechen – OH⁻ Kugeln durch!';
+                reaktH3O.innerHTML = '🔴 H₃O⁺: OH⁻ aus KOH neutralisiert (Schutz links).';
+                reaktOH.innerHTML = '🔵 OH⁻: KEINE Säure – RECHTE WAND BRICHT BEIM KONTAKT.';
                 feedback.innerHTML = 'KOH + KCl schützt nur vor H₃O⁺ (links).';
             }
             else if (istMilchAcetat) {
                 schutzLinks = false;
                 schutzRechts = false;
-                wandLinks.classList.add('wand-zerbrochen');
-                wandRechts.classList.add('wand-zerbrochen');
                 pufferBox.style.backgroundColor = '#f0d8b0';
-                statusText.innerText = '⏳ Milchsäure+Acetat: Keine echten Paare – BEIDE WÄNDE BRECHEN!';
-                reaktH3O.innerHTML = '💧 H₃O⁺: Kurzreaktion, dann versagt – LINKS BRICHT.';
-                reaktOH.innerHTML = '🫧 OH⁻: Kurzreaktion, dann versagt – RECHTS BRICHT.';
+                statusText.innerText = '⏳ Milchsäure+Acetat: Keine echten Paare – BEIDE WÄNDE BRECHEN BEIM KONTAKT!';
+                reaktH3O.innerHTML = '🔴 H₃O⁺: Kurzreaktion, dann versagt – LINKS BRICHT.';
+                reaktOH.innerHTML = '🔵 OH⁻: Kurzreaktion, dann versagt – RECHTS BRICHT.';
                 feedback.innerHTML = '❌ Falsches Paar – kein Puffer.';
             }
             else {
                 schutzLinks = false;
                 schutzRechts = false;
-                wandLinks.classList.add('wand-zerbrochen');
-                wandRechts.classList.add('wand-zerbrochen');
                 pufferBox.style.backgroundColor = '#f0a8a8';
-                statusText.innerText = '💥 KEIN PUFFER – BEIDE WÄNDE BRECHEN! Kugeln laufen durch.';
-                reaktH3O.innerHTML = '💧 H₃O⁺: Kein Schutz – LINKS BRICHT.';
-                reaktOH.innerHTML = '🫧 OH⁻: Kein Schutz – RECHTS BRICHT.';
+                statusText.innerText = '💥 KEIN PUFFER – BEIDE WÄNDE BRECHEN BEIM KONTAKT! Kugeln fliegen durch.';
+                reaktH3O.innerHTML = '🔴 H₃O⁺: Kein Schutz – LINKS BRICHT.';
+                reaktOH.innerHTML = '🔵 OH⁻: Kein Schutz – RECHTS BRICHT.';
                 feedback.innerHTML = 'Diese Kombination puffert nicht.';
             }
 
             // Animation starten mit entsprechendem Wandschutz
-            starteKugeln(schutzLinks, schutzRechts);
+            starteAnimation(schutzLinks, schutzRechts);
         });
 
         updateAuswahl();
